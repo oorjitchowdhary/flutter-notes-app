@@ -85,7 +85,10 @@ class _AuthState extends State<Auth> {
 
                         try {
                           final user = auth.signInWithEmailAndPassword(email: userEmail, password: userPassword);
-                          // add navigation
+
+                          if (auth.currentUser != null) {
+                            Navigator.pushNamed(context, AddNote.id);
+                          }
 
                         } catch (error) {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
@@ -105,6 +108,7 @@ class _AuthState extends State<Auth> {
 
                           if (newUser != null) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registered user successfully.')));
+                            Navigator.pushNamed(context, AddNote.id);
                           }
 
                         } on FirebaseAuthException catch (error) {
