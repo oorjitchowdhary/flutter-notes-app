@@ -12,9 +12,10 @@ class AddNote extends StatefulWidget {
 
 class _AddNoteState extends State<AddNote> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  final FirebaseAuth auth = FirebaseAuth.instance;
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
-  CollectionReference notes = FirebaseFirestore.instance.collection("notes");
+  static FirebaseAuth auth = FirebaseAuth.instance;
+  final String uid = auth.currentUser.uid;
+  static FirebaseFirestore firestore = FirebaseFirestore.instance;
+  CollectionReference notes = firestore.collection("notes");
   String noteTitle, noteBody;
 
   @override
@@ -81,7 +82,8 @@ class _AddNoteState extends State<AddNote> {
 
                         notes.add({
                           'title': noteTitle,
-                          'body': noteBody
+                          'body': noteBody,
+                          'uid': auth.currentUser.uid
                         }).then((value) => {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added note successfully')))
                         }).catchError((error) => {
