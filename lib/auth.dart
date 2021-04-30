@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:notes/addNote.dart';
 
 class Auth extends StatefulWidget {
@@ -9,6 +10,9 @@ class Auth extends StatefulWidget {
 
 class _AuthState extends State<Auth> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  String userEmail, userPassword;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,6 +25,7 @@ class _AuthState extends State<Auth> {
         child: Form(
           key: formKey,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 'Authentication',
@@ -35,6 +40,9 @@ class _AuthState extends State<Auth> {
                   hintText: 'Email'
                 ),
                 keyboardType: TextInputType.emailAddress,
+                onSaved: (String email) {
+                  userEmail = email;
+                },
                 validator: (String email) {
                   if (email == null || email.isEmpty) {
                     return "Please enter your email";
@@ -51,10 +59,13 @@ class _AuthState extends State<Auth> {
                   hintText: 'Password',
                 ),
                 keyboardType: TextInputType.visiblePassword,
+                onSaved: (String password) {
+                  userPassword = password;
+                },
                 obscureText: true,
                 validator: (String password) {
                   if (password == null || password.isEmpty) {
-                    return "please enter your password";
+                    return "Please enter your password";
                   }
 
                   else {
@@ -62,29 +73,56 @@ class _AuthState extends State<Auth> {
                   }
                 },
               ),
+              SizedBox(height: 24.0),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
                     child: Text('Login'),
                     onPressed: () {
                       if (formKey.currentState.validate() == true) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Logging-in user.')));
-                      }
+                        formKey.currentState.save();
 
-                      else {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error logging in user')));
-                      }
+                        try {
+                          final user = auth.signInWithEmailAndPassword(email: userEmail, password: userPassword);
 
+                          if (auth.currentUser != null) {
+                            Navigator.pushNamed(context, AddNote.id);
+                          }
+
+                        } catch (error) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+                        }
+                      }
                     },
                   ),
                   SizedBox(width: 16.0),
-                  ElevatedButton(onPressed: () {}, child: Text('Register')),
+                  ElevatedButton(
+                    child: Text('Register'),
+                    onPressed: () async {
+                      if (formKey.currentState.validate() == true) {
+                        formKey.currentState.save();
+
+                        try {
+                          final newUser = await auth.createUserWithEmailAndPassword(email: userEmail, password: userPassword);
+
+                          if (newUser != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registered user successfully.')));
+                            Navigator.pushNamed(context, AddNote.id);
+                          }
+
+                        } on FirebaseAuthException catch (error) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message)));
+                        }
+                      }
+                    },
+                  ),
                   SizedBox(width: 16.0),
                   ElevatedButton(
-                    child: Text('Add note'),
+                    child: Text('Logout'),
                     onPressed: () {
-                      Navigator.pushNamed(context, AddNote.id);
+                      auth.signOut();
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Logged out successfully.')));
                     },
                   )
                 ],
