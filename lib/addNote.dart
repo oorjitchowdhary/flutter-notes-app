@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'auth.dart';
+import 'viewNotes.dart';
 
 class AddNote extends StatefulWidget {
   static String id = "addNote";
@@ -98,6 +99,7 @@ class _AddNoteState extends State<AddNote> {
                   ElevatedButton(
                     child: Text('View notes'),
                     onPressed: () {
+                      Navigator.pushNamed(context, ViewNotes.id);
                     },
                   ),
                   SizedBox(width: 16.0),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:notes/viewNotes.dart';
 
 import 'auth.dart';
 import 'addNote.dart';
@@ -26,7 +27,8 @@ class MyApp extends StatelessWidget {
             title: 'Notes App',
             routes: {
               Auth.id: (context) => Auth(),
-              AddNote.id: (context) => AddNote()
+              AddNote.id: (context) => AddNote(),
+              ViewNotes.id: (context) => ViewNotes()
             },
             initialRoute: Auth.id,
           );
